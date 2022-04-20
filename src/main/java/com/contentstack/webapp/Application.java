@@ -1,33 +1,14 @@
 package com.contentstack.webapp;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
-import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.contentstack.sdk.ContentType;
-import com.contentstack.sdk.Contentstack;
-import com.contentstack.sdk.Entry;
-import com.contentstack.sdk.Error;
-import com.contentstack.sdk.Query;
-import com.contentstack.sdk.QueryResult;
-import com.contentstack.sdk.QueryResultsCallBack;
-import com.contentstack.sdk.ResponseType;
-import com.contentstack.sdk.Stack;
 
 @SpringBootApplication
 @Controller
@@ -35,6 +16,8 @@ public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
+
+
 	}
 
 	@GetMapping("/about")
@@ -49,8 +32,6 @@ public class Application extends SpringBootServletInitializer {
 		return "about";
 	}
 
-
-
 	@GetMapping("/contact")
 	public String contact(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
 
@@ -62,8 +43,6 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return "contact";
 	}
-
-
 
 	@GetMapping("/")
 	public String home(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
@@ -77,7 +56,6 @@ public class Application extends SpringBootServletInitializer {
 		return "headline";
 	}
 
-
 	@GetMapping("/headline")
 	public String headline(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
 
@@ -89,9 +67,6 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return "headline";
 	}
-
-
-
 
 	@GetMapping("/products")
 	public String allProducts(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
@@ -110,24 +85,11 @@ public class Application extends SpringBootServletInitializer {
 
 		try {
 			ArrayList<NewsModel> newsHeadlines = new ArrayList<>();
-			final Stack stack = Contentstack.stack("blt7979d15c28261b93", "cs17465ae5683299db9d259cb6", "production");
-			ContentType contentType = stack.contentType("news");
-			Query query = contentType.query();
-			query.find(new QueryResultsCallBack() {
-				@Override
-				public void onCompletion(ResponseType responseType, QueryResult queryresult, com.contentstack.sdk.Error error) {
-					if (error == null) {
-						List<Entry> result = queryresult.getResultObjects();
-						for (Entry entry : result) {
-							JSONObject response = entry.toJSON();
-							JSONObject url = response.optJSONObject("thumbnail");
-							String imageUrl = url.optString("url");
-							newsHeadlines.add(new NewsModel(response.optString("title"),
-									response.optString("body"), imageUrl));
-						}
-					}
-				}
-			});
+			NewsModel m1 = new NewsModel();
+			m1.setDescription("dit is een tekst");
+			m1.setTitle("dit is de titel van de tekst");
+			m1.setImage("http://localhost:8080/images/Hond1.jpg");
+			newsHeadlines.add(m1);
 			return newsHeadlines;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -137,33 +99,20 @@ public class Application extends SpringBootServletInitializer {
 		return null;
 	}
 
-
 	private ArrayList<NewsModel> getAllProducts() {
 
 		try {
 			ArrayList<NewsModel> allProducts = new ArrayList<>();
-			Stack stack = Contentstack.stack("blt7979d15c28261b93", "cs17465ae5683299db9d259cb6", "production");
-			Query query = stack.contentType("products").query();
-			query.includeContentType();
-			query.find(new QueryResultsCallBack() {
-
-				@Override
-				public void onCompletion(ResponseType responseType, QueryResult queryresult, Error error) {
-					if (error == null) {
-						List<Entry> entryList = queryresult.getResultObjects();
-						if (queryresult.getResultObjects().size() > 0) {
-							for (Entry entry : entryList) {
-								JSONObject response = entry.toJSON();
-								JSONObject url = response.optJSONObject("image");
-								String imageUrl = url.optString("url");
-								allProducts.add(new NewsModel(response.optString("title"),
-										response.optString("description"),
-										imageUrl));
-							}
-						}
-					}
-				}
-			});
+			NewsModel m1 = new NewsModel();
+			m1.setDescription("dit is het eerste product");
+			m1.setTitle("een eenmalige begeleiding");
+			m1.setImage("http://localhost:8080/images/snapshot.png");
+			allProducts.add(m1);
+			NewsModel m2 = new NewsModel();
+			m2.setDescription("dit is het tweede product");
+			m2.setTitle("10 beurten begeleiding");
+			m2.setImage("http://localhost:8080/images/hond3.jpg");
+			allProducts.add(m2);
 			return allProducts;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -172,25 +121,11 @@ public class Application extends SpringBootServletInitializer {
 		return null;
 	}
 
-
 	private String getAboutUs() {
 
 		try {
-			final String[] ABOUT_US = {""};
-			Stack stack = Contentstack.stack("blt7979d15c28261b93", "cs17465ae5683299db9d259cb6", "production");
-			Query query = stack.contentType("about").query();
-			query.includeContentType();
-			query.find(new QueryResultsCallBack() {
-
-				@Override
-				public void onCompletion(ResponseType responseType, QueryResult queryresult, Error error) {
-					if (error == null) {
-						ABOUT_US[0] = queryresult.getResultObjects().get(0).toJSON().optString("about");
-						System.out.println("ABOUT_US: "+ABOUT_US[0]);
-					}
-				}
-			});
-			return ABOUT_US[0];
+			final String[] ABOUT_US = {"wie ben ik wat doe ik?"};
+		return ABOUT_US[0];
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
@@ -198,25 +133,10 @@ public class Application extends SpringBootServletInitializer {
 		return null;
 	}
 
-
-
 	private String getContactUs() {
 
 		try {
-			final String[] contact = {""};
-			Stack stack = Contentstack.stack("blt7979d15c28261b93", "cs17465ae5683299db9d259cb6", "production");
-			Query query = stack.contentType("contactus").query();
-			query.includeContentType();
-			query.find(new QueryResultsCallBack() {
-
-				@Override
-				public void onCompletion(ResponseType responseType, QueryResult queryresult, Error error) {
-					if (error == null) {
-						contact[0] = queryresult.getResultObjects().get(0).toJSON().optString("contactus");
-						System.out.println("contact us: "+ contact[0]);
-					}
-				}
-			});
+			final String[] contact = {"Dit is mijn naam <BR> Dit is mijn straat <BR> dit is mijn woonplaats <BR> dit is mijn email adres"};
 			return contact[0];
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
